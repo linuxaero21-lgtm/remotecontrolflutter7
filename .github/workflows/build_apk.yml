@@ -1,0 +1,40 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout codice
+        uses: actions/checkout@v5
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.7'
+          channel: 'stable'
+
+      - name: Install dipendenze
+        run: flutter pub get
+        working-directory: client
+
+      - name: Build APK
+        run: flutter build apk --release
+        working-directory: client
+
+      - name: Carica APK come artefatto
+        uses: actions/upload-artifact@v5
+        with:
+          name: remote-control-apk
+          path: client/build/app/outputs/flutter-apk/app-release.apk
